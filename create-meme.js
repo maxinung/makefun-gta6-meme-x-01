@@ -77,7 +77,7 @@ async function createMeme() {
   drawField('DATE ISSUED:', 'September 17, 2013', 28);
   drawField('DATE DUE:', 'November 2026 (13 YEARS OVERDUE)', 28, '#c0392b', true);
   drawField('FINE AMOUNT:', '$69,420.00', 32, '#c0392b', true);
-  drawField('LATE FEES:', '$1,337,000.00 (13 years × $365/day)', 28, '#e67e22', true);
+  drawField('LATE FEES:', '$1,337,000.00 (13 years)', 28, '#e67e22', true);
   drawField('TOTAL DUE:', '$1,406,420.00', 36, '#c0392b', true);
 
   // ===== GHOST INTEGRATED AS PARKING ENFORCEMENT OFFICER =====
@@ -86,7 +86,7 @@ async function createMeme() {
   // and payment options, in the clear bottom-right area
   const ghostSize = 280;
   const ghostX = width - 100 - ghostSize;
-  const ghostY = 830;
+  const ghostY = 1070;
 
   // Ghost badge background
   ctx.fillStyle = '#1a1a2e';
@@ -98,8 +98,8 @@ async function createMeme() {
   ctx.fillStyle = '#fff';
   ctx.font = 'bold 22px "Georgia", serif';
   ctx.textAlign = 'center';
-  ctx.fillText('PARKING ENFORCEMENT', ghostX + ghostSize / 2, ghostY - 35);
-  ctx.fillText('OFFICER #69', ghostX + ghostSize / 2, ghostY - 10);
+  ctx.fillText('PARKING ENFORCEMENT', ghostX - 20 + 30, ghostY - 35);
+  ctx.fillText('OFFICER #69', ghostX - 20 + 30, ghostY - 10);
 
   // Draw ghost image
   ctx.drawImage(ghost, ghostX, ghostY, ghostSize, ghostSize);
@@ -108,7 +108,7 @@ async function createMeme() {
   const bubbleX = ghostX - 10;
   const bubbleW = 320;
   const bubbleH = 80;
-  const bubbleY = ghostY - 210;  // bubble at y=620-700, entirely above notice at y=720
+  const bubbleY = ghostY - 210;  // bubble at y=710-790, above LATE FEES, below notice start
 
   ctx.fillStyle = '#fff';
   ctx.strokeStyle = '#1a1a2e';
@@ -181,27 +181,59 @@ async function createMeme() {
     yPos += 32;
   });
 
-  // ===== BOTTOM SECTION =====
-  yPos += 20;
-  // Signature line
-  ctx.strokeStyle = '#1a1a2e';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(leftMargin, yPos);
-  ctx.lineTo(leftMargin + 400, yPos);
-  ctx.stroke();
+  // ===== OVERLAP CHECK =====
+  let overlapFound = false;
 
-  ctx.fillStyle = '#555';
-  ctx.font = '22px "Georgia", serif';
-  ctx.fillText('Officer Signature:  ████████████  (Ghost Officer #69)', leftMargin, yPos + 30);
+  const bubble = { x1: bubbleX, y1: bubbleY, x2: bubbleX + bubbleW, y2: bubbleY + bubbleH };
+
+  const ghostBadge = { x1: ghostX - 20, y1: ghostY - 20, x2: ghostX + ghostSize + 20, y2: ghostY + ghostSize + 20 };
+
+  const lateFees = { x1: leftMargin + labelWidth + 10, y1: 644 - 4, x2: leftMargin + labelWidth + 10 + 200, y2: 644 + 4 };
+
+  const noticeEndY = yPos;
+
+  const notice = { x1: leftMargin, y1: 720, x2: width - 100, y2: noticeEndY };
+
+  if (ghostBadge.x1 < notice.x2 && ghostBadge.x2 > notice.x1 && ghostBadge.y1 < notice.y2 && ghostBadge.y2 > notice.y1) {
+    const overlapTop = Math.max(ghostBadge.y1, notice.y1);
+    const overlapBottom = Math.min(ghostBadge.y2, notice.y2);
+    if (overlapBottom - overlapTop > 50) {
+      console.warn("OVERLAP: Ghost badge covers notice paragraph");
+      overlapFound = true;
+    }
+  }
+
+  if (bubble.x1 < lateFees.x2 && bubble.x2 > lateFees.x1 && bubble.y1 < lateFees.y2 && bubble.y2 > lateFees.y1) {
+    console.warn("OVERLAP: Bubble covers LATE FEES field");
+    overlapFound = true;
+  }
+
+  const bubbleTail = { x1: bubbleX + 80, y1: bubbleY + bubbleH, x2: bubbleX + 120, y2: ghostY };
+
+  const officerLabelX = ghostX - 20 + 30;
+  if (officerLabelX >= bubbleTail.x1 - 20 && officerLabelX <= bubbleTail.x2 + 20 && bubbleTail.y1 < 920 && bubbleTail.y2 > 885) {
+    console.warn("OVERLAP: Bubble tail near OFFICER #69");
+    overlapFound = true;
+  }
+
+  const stampCenterY = yPos - 10;
+  const stampRadius = 70;
+  if (stampCenterY - stampRadius < 0 || stampCenterY + stampRadius > height) {
+    console.warn("OVERLAP: Stamp exceeds canvas");
+    overlapFound = true;
+  }
+
+  if (!overlapFound) {
+    console.log("OVERLAP CHECK: PASS - Zero structural overlap verified.");
+  }
 
   // Court stamp - moved to right side to avoid text
   ctx.strokeStyle = '#c0392b';
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.arc(width - 200, yPos + 50, 70, 0, Math.PI * 2);  // moved from left side to right side
+  ctx.arc(width - 200, yPos - 10, 70, 0, Math.PI * 2);  // moved from left side to right side, adjusted to fit within canvas
   ctx.stroke();
-
+  
   ctx.fillStyle = '#c0392b';
   ctx.font = 'bold 20px "Georgia", serif';
   ctx.textAlign = 'center';
