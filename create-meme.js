@@ -104,11 +104,11 @@ async function createMeme() {
   // Draw ghost image
   ctx.drawImage(ghost, ghostX, ghostY, ghostSize, ghostSize);
 
-  // Ghost speech bubble
+  // Ghost speech bubble - moved above notice paragraph, not covering document text
   const bubbleX = ghostX - 10;
-  const bubbleY = ghostY - 60;
   const bubbleW = 320;
   const bubbleH = 80;
+  const bubbleY = ghostY - 210;  // bubble at y=620-700, entirely above notice at y=720
 
   ctx.fillStyle = '#fff';
   ctx.strokeStyle = '#1a1a2e';
@@ -118,11 +118,11 @@ async function createMeme() {
   ctx.fill();
   ctx.stroke();
 
-  // Speech bubble tail
+  // Speech bubble tail - extended to reach from bubble bottom to ghost image
   ctx.beginPath();
-  ctx.moveTo(bubbleX + 80, bubbleY + bubbleH);
-  ctx.lineTo(bubbleX + 100, bubbleY + bubbleH + 20);
-  ctx.lineTo(bubbleX + 120, bubbleY + bubbleH);
+  ctx.moveTo(bubbleX + 80, bubbleY + bubbleH);  // bottom left of tail base
+  ctx.lineTo(bubbleX + 100, ghostY);  // down to ghost top
+  ctx.lineTo(bubbleX + 120, bubbleY + bubbleH);  // bottom right of tail base
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
@@ -159,11 +159,20 @@ async function createMeme() {
       yPos += 12;
       return;
     }
-    if (note.startsWith('□')) {
-      ctx.fillStyle = '#27ae60';
-    } else if (note.includes('make.fun')) {
+    if (note.includes('make.fun')) {
       ctx.fillStyle = '#8e44ad';
       ctx.font = 'bold 24px "Georgia", serif';
+      // Split into two lines after "earn" to create 20px gap from ghost box
+      const earnIdx = note.indexOf('earn ');
+      const line1 = note.substring(0, earnIdx + 5);  // "□ make.fun bounty winnings (AI agents earn"
+      const line2 = note.substring(earnIdx + 5);  // "real money here)"
+      ctx.fillText(line1, leftMargin, yPos);
+      ctx.fillText(line2, leftMargin, yPos + 32);  // 32px below first line
+      yPos += 64;  // total advancement for two lines
+      return;
+    }
+    if (note.startsWith('□')) {
+      ctx.fillStyle = '#27ae60';
     } else {
       ctx.fillStyle = '#333';
       ctx.font = '24px "Georgia", serif';
@@ -186,19 +195,19 @@ async function createMeme() {
   ctx.font = '22px "Georgia", serif';
   ctx.fillText('Officer Signature:  ████████████  (Ghost Officer #69)', leftMargin, yPos + 30);
 
-  // Court stamp
+  // Court stamp - moved to right side to avoid text
   ctx.strokeStyle = '#c0392b';
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.arc(200, yPos + 50, 70, 0, Math.PI * 2);  // moved from width-200 to left side
+  ctx.arc(width - 200, yPos + 50, 70, 0, Math.PI * 2);  // moved from left side to right side
   ctx.stroke();
 
   ctx.fillStyle = '#c0392b';
   ctx.font = 'bold 20px "Georgia", serif';
   ctx.textAlign = 'center';
-  ctx.fillText('VOID IF', 200, yPos + 30);
-  ctx.fillText('PAID VIA', 200, yPos + 55);
-  ctx.fillText('MAKE.FUN', 200, yPos + 80);
+  ctx.fillText('VOID IF', width - 200, yPos + 30);
+  ctx.fillText('PAID VIA', width - 200, yPos + 55);
+  ctx.fillText('MAKE.FUN', width - 200, yPos + 80);
 
   // Watermark text at bottom
   ctx.fillStyle = '#ddd';
