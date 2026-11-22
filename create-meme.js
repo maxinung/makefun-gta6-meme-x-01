@@ -82,9 +82,11 @@ async function createMeme() {
 
   // ===== GHOST INTEGRATED AS PARKING ENFORCEMENT OFFICER =====
   // Draw ghost on the right side, integrated into the scene
+  // Moved down to avoid covering document text - positioned below text fields
+  // and payment options, in the clear bottom-right area
   const ghostSize = 280;
   const ghostX = width - 100 - ghostSize;
-  const ghostY = 340;
+  const ghostY = 830;
 
   // Ghost badge background
   ctx.fillStyle = '#1a1a2e';
@@ -128,8 +130,8 @@ async function createMeme() {
   ctx.fillStyle = '#1a1a2e';
   ctx.font = 'bold 22px "Georgia", serif';
   ctx.textAlign = 'center';
-  ctx.fillText('"Sir, your GTA 6', ghostX + 50, bubbleY + 30);
-  ctx.fillText('pre-order expired"', ghostX + 50, bubbleY + 58);
+  ctx.fillText('"Sir, your GTA 6', bubbleX + 50, bubbleY + 30);
+  ctx.fillText('pre-order expired"', bubbleX + 50, bubbleY + 58);
 
   // ===== FOOTER NOTES =====
   yPos = 720;
@@ -188,15 +190,15 @@ async function createMeme() {
   ctx.strokeStyle = '#c0392b';
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.arc(width - 200, yPos + 50, 70, 0, Math.PI * 2);
+  ctx.arc(200, yPos + 50, 70, 0, Math.PI * 2);  // moved from width-200 to left side
   ctx.stroke();
 
   ctx.fillStyle = '#c0392b';
   ctx.font = 'bold 20px "Georgia", serif';
   ctx.textAlign = 'center';
-  ctx.fillText('VOID IF', width - 200, yPos + 30);
-  ctx.fillText('PAID VIA', width - 200, yPos + 55);
-  ctx.fillText('MAKE.FUN', width - 200, yPos + 80);
+  ctx.fillText('VOID IF', 200, yPos + 30);
+  ctx.fillText('PAID VIA', 200, yPos + 55);
+  ctx.fillText('MAKE.FUN', 200, yPos + 80);
 
   // Watermark text at bottom
   ctx.fillStyle = '#ddd';
