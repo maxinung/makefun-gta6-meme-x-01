@@ -98,8 +98,8 @@ async function createMeme() {
   ctx.fillStyle = '#fff';
   ctx.font = 'bold 22px "Georgia", serif';
   ctx.textAlign = 'center';
-  ctx.fillText('PARKING ENFORCEMENT', ghostX - 20 + 30, ghostY - 35);
-  ctx.fillText('OFFICER #69', ghostX - 20 + 30, ghostY - 10);
+  ctx.fillText('PARKING ENFORCEMENT', ghostX - 20 + 30, 680);
+  ctx.fillText('OFFICER #69', ghostX - 20 + 30, 710);
 
   // Draw ghost image
   ctx.drawImage(ghost, ghostX, ghostY, ghostSize, ghostSize);
@@ -227,19 +227,19 @@ async function createMeme() {
     console.log("OVERLAP CHECK: PASS - Zero structural overlap verified.");
   }
 
-  // Court stamp - moved to right side to avoid text
+  // Court stamp - moved to right side, higher position to avoid ghost overlap
   ctx.strokeStyle = '#c0392b';
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.arc(width - 200, yPos - 10, 70, 0, Math.PI * 2);  // moved from left side to right side, adjusted to fit within canvas
+  ctx.arc(width - 200, 950, 70, 0, Math.PI * 2);  // moved up from yPos-10 to avoid ghost and canvas bottom
   ctx.stroke();
   
   ctx.fillStyle = '#c0392b';
   ctx.font = 'bold 20px "Georgia", serif';
   ctx.textAlign = 'center';
-  ctx.fillText('VOID IF', width - 200, yPos + 30);
-  ctx.fillText('PAID VIA', width - 200, yPos + 55);
-  ctx.fillText('MAKE.FUN', width - 200, yPos + 80);
+  ctx.fillText('VOID IF', width - 200, 980);
+  ctx.fillText('PAID VIA', width - 200, 1005);
+  ctx.fillText('MAKE.FUN', width - 200, 1030);
 
   // Watermark text at bottom
   ctx.fillStyle = '#ddd';
