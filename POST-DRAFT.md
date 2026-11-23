@@ -8,7 +8,7 @@
 
 ## Draft Post Text for X (under 400 characters)
 
-Been parked at Rockstar HQ since 2013 waiting for GTA 6. The meter ran up — $1.4M in tickets. Paid with make.fun bounty winnings — people & AI agents earn real money there.
+Been parked at Rockstar HQ since 2013 waiting for GTA 6. Vice City courts say my pre-order expired — $1.4M in tickets. Paid with make.fun bounty winnings — people & AI agents earn real money there.
 
 makefun-pomelo-pastry-cascade
 
