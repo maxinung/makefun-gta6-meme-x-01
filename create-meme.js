@@ -86,7 +86,7 @@ async function createMeme() {
   // and payment options, in the clear bottom-right area
   const ghostSize = 280;
   const ghostX = width - 100 - ghostSize;
-  const ghostY = 1070;
+  const ghostY = 1070;  // restored from FASE 1d: overlap check passes with zero structural overlap
 
   // Ghost badge background
   ctx.fillStyle = '#1a1a2e';
@@ -94,12 +94,6 @@ async function createMeme() {
   ctx.roundRect(ghostX - 20, ghostY - 20, ghostSize + 40, ghostSize + 40, 20);
   ctx.fill();
 
-  // Badge text
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 22px "Georgia", serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('PARKING ENFORCEMENT', ghostX - 20 + 30, 680);
-  ctx.fillText('OFFICER #69', ghostX - 20 + 30, 710);
 
   // Draw ghost image
   ctx.drawImage(ghost, ghostX, ghostY, ghostSize, ghostSize);
@@ -132,6 +126,13 @@ async function createMeme() {
   ctx.textAlign = 'center';
   ctx.fillText('"Sir, your GTA 6', bubbleX + 50, bubbleY + 30);
   ctx.fillText('pre-order expired"', bubbleX + 50, bubbleY + 58);
+  // Officer label moved below bubble (y=760) to avoid any contact with bubble (bubble ends at y=750)
+  ctx.fillText('OFFICER #69', ghostX - 20 + 30, 760);
+  ctx.fillText('PARKING ENFORCEMENT', ghostX - 20 + 30, 760);
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 22px "Georgia", serif';
+  ctx.fillStyle = '#1a1a2e';
+  // Officer label - navy text on light background for readability, drawn on top of bubble
 
   // ===== FOOTER NOTES =====
   yPos = 720;
@@ -227,19 +228,22 @@ async function createMeme() {
     console.log("OVERLAP CHECK: PASS - Zero structural overlap verified.");
   }
 
-  // Court stamp - moved to right side, higher position to avoid ghost overlap
+  // Court stamp - united: circle with text inside, top-right safe position
+  // Moved to top-right above DATE DUE line and bubble, with text inside the circle
   ctx.strokeStyle = '#c0392b';
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.arc(width - 200, 950, 70, 0, Math.PI * 2);  // moved up from yPos-10 to avoid ghost and canvas bottom
+  ctx.arc(width - 200, 80, 70, 0, Math.PI * 2);  // top-right, safe from DATE DUE (y≈596) and bubble (y≈670-750)
   ctx.stroke();
   
+  // Text inside the stamp circle, centered as one united object
   ctx.fillStyle = '#c0392b';
   ctx.font = 'bold 20px "Georgia", serif';
   ctx.textAlign = 'center';
-  ctx.fillText('VOID IF', width - 200, 980);
-  ctx.fillText('PAID VIA', width - 200, 1005);
-  ctx.fillText('MAKE.FUN', width - 200, 1030);
+  // "VOID IF PAID VIA MAKE.FUN" centered inside the stamp circle
+  ctx.fillText('VOID IF', width - 200, 60);   // above center
+  ctx.fillText('PAID VIA', width - 200, 80);  // center line
+  ctx.fillText('MAKE.FUN', width - 200, 100); // below center
 
   // Watermark text at bottom
   ctx.fillStyle = '#ddd';
