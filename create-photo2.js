@@ -7,8 +7,9 @@
 // panel's light falloff is left alone — no green paint anywhere.
 // DETOUR is a small orange placard pinned near the top of the panel (its own
 // border + shadow, like a real EXIT tab), not a full-width strip. The ghost
-// is a small worn sticker on the panel's bottom-right corner, tilted, with a
-// soft shadow and a few chipped edge notches. Rendered with node-canvas.
+// is not a sticker any more: it is a big tired road worker standing on the
+// support beam, holding a SLOW paddle — the character is the joke. Rendered
+// with node-canvas.
 //
 // Composition fix: the photo fills the whole frame by scale + centre-crop,
 // with no flat sky extension and no seam. The crop window is the panel's
@@ -22,7 +23,6 @@ const { createCanvas, loadImage } = require('canvas');
 
 const REPO = __dirname;
 const BASE = path.join(REPO, 'photo-base2.jpg');
-const MARK = path.join(REPO, 'mark-1024.png');
 const OUT = path.join(REPO, 'meme.png');
 const OUT480 = path.join(REPO, 'meme_480.png');
 
@@ -74,7 +74,6 @@ function roundRectPath(ctx, x, y, w, h, r) {
 
 async function main() {
   const base = await loadImage(BASE);
-  const mark = await loadImage(MARK);
   const cv = createCanvas(W, H);
   const ctx = cv.getContext('2d');
 
@@ -174,42 +173,194 @@ async function main() {
   ctx.font = '700 66px "Liberation Sans", "DejaVu Sans", sans-serif';
   ctx.fillText('TOLL PAID BY make.fun', cx, 815);
 
-  // --- ghost sticker: small, on the panel's bottom-right corner, tilted,
-  // soft shadow, edges chipped so it reads as a sticker that has been there
-  // a while — not a fresh badge. ---
-  const gs = 185, gx = 1105, gy = 792, pad = 32;
-  const st = createCanvas(gs + pad * 2, gs + pad * 2);
-  const sctx = st.getContext('2d');
-  sctx.save();
-  sctx.shadowColor = 'rgba(0,0,0,0.5)';
-  sctx.shadowBlur = 10;
-  sctx.shadowOffsetX = 4;
-  sctx.shadowOffsetY = 6;
-  sctx.drawImage(mark, pad, pad, gs, gs);
-  sctx.restore();
-  // chip a few tiny notches out of the disc rim
-  const ccx = pad + gs / 2, ccy = pad + gs / 2, rad = gs / 2;
-  sctx.globalCompositeOperation = 'destination-out';
-  const notches = [[0.15, 3], [0.7, 2], [1.4, 4], [2.2, 2], [2.9, 3], [3.8, 2], [4.6, 4], [5.5, 2]];
-  for (const pair of notches) {
-    sctx.globalAlpha = 0.55;
-    sctx.beginPath();
-    sctx.arc(ccx + Math.cos(pair[0]) * rad, ccy + Math.sin(pair[0]) * rad, pair[1], 0, Math.PI * 2);
-    sctx.fill();
-  }
-  // two faint scratches across the face
-  sctx.globalCompositeOperation = 'source-over';
-  sctx.globalAlpha = 0.10;
-  sctx.strokeStyle = '#ffffff';
-  sctx.lineWidth = 1.5;
-  sctx.beginPath(); sctx.moveTo(pad + 18, pad + 42); sctx.lineTo(pad + 62, pad + 30); sctx.stroke();
-  sctx.beginPath(); sctx.moveTo(pad + 96, pad + 108); sctx.lineTo(pad + 122, pad + 92); sctx.stroke();
-  sctx.globalAlpha = 1;
+  // --- the ghost, as a tired road worker ---
+  // The sign alone was not a meme, so the joke is now a character: the
+  // make.fun ghost has been holding this detour for thirteen years and is
+  // dozing off on the job. It stands on the support beam at the panel's
+  // bottom-right, big enough to be the second thing the eye lands on after
+  // GTA VI. It is drawn by hand in code, no sticker disc: white body with a
+  // thick black outline, sleepy shut eyes, an orange hard hat slipping
+  // sideways, a SLOW paddle in one hand and the magenta star coin in the
+  // other. The sign copy is untouched, and the ghost stays clear of every
+  // line (the nearest text ends at x 984; the ghost starts at x 1000).
+  const GX = 1092;   // ghost centre x
+  const FEET = 902;  // feet y, on the beam's top edge
+  const TOP = 602;   // head top y (300 tall)
+  // Scale the whole figure a touch around the feet, so it has breathing room
+  // from the frame's right edge (the coin was 8px from it).
   ctx.save();
-  ctx.translate(gx, gy);
-  ctx.rotate(-6 * Math.PI / 180);
-  ctx.drawImage(st, -(gs + pad * 2) / 2, -(gs + pad * 2) / 2);
+  ctx.translate(GX, FEET);
+  ctx.scale(0.93, 0.93);
+  ctx.translate(-GX, -FEET);
+
+  // A pool of warm spill from the lamp, then a contact shadow on top of it,
+  // so the feet stand on something visible: out here the beam is near-black,
+  // and a shadow alone would vanish against it.
+  ctx.save();
+  ctx.translate(GX, FEET + 6);
+  ctx.scale(1, 0.18);
+  const pool = ctx.createRadialGradient(0, 0, 4, 0, 0, 120);
+  pool.addColorStop(0, 'rgba(201,160,106,0.38)');
+  pool.addColorStop(0.7, 'rgba(201,160,106,0.10)');
+  pool.addColorStop(1, 'rgba(201,160,106,0)');
+  ctx.fillStyle = pool;
+  ctx.beginPath();
+  ctx.arc(0, 0, 120, 0, Math.PI * 2);
+  ctx.fill();
   ctx.restore();
+  ctx.save();
+  ctx.translate(GX, FEET + 4);
+  ctx.scale(1, 0.14);
+  const sh = ctx.createRadialGradient(0, 0, 2, 0, 0, 95);
+  sh.addColorStop(0, 'rgba(0,0,0,0.55)');
+  sh.addColorStop(0.7, 'rgba(0,0,0,0.22)');
+  sh.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = sh;
+  ctx.beginPath();
+  ctx.arc(0, 0, 95, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Body: a slim ghost, dome top, sides flaring slightly to two rounded
+  // feet with a notch between them, like the mascot.
+  ctx.beginPath();
+  ctx.moveTo(1012, 690);
+  ctx.bezierCurveTo(1012, 640, 1040, TOP, GX, TOP);
+  ctx.bezierCurveTo(1144, TOP, 1172, 640, 1172, 690);
+  ctx.bezierCurveTo(1178, 770, 1185, 820, 1185, 862);
+  ctx.bezierCurveTo(1185, 892, 1165, FEET, 1140, FEET);
+  ctx.bezierCurveTo(1120, FEET, 1105, 884, GX, 884);
+  ctx.bezierCurveTo(1079, 884, 1064, FEET, 1044, FEET);
+  ctx.bezierCurveTo(1019, FEET, 1000, 892, 1000, 862);
+  ctx.bezierCurveTo(1000, 820, 1006, 770, 1012, 690);
+  ctx.closePath();
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.lineWidth = 10;
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = '#111111';
+  ctx.stroke();
+
+  // Sleepy shut eyes: two shallow U curves, outer ends drooping.
+  ctx.lineWidth = 7;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = '#111111';
+  ctx.beginPath();
+  ctx.moveTo(1055, 668);
+  ctx.quadraticCurveTo(1068, 682, 1081, 670);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(1103, 670);
+  ctx.quadraticCurveTo(1116, 682, 1129, 668);
+  ctx.stroke();
+
+  // Hard hat, orange, slipping sideways.
+  ctx.save();
+  ctx.translate(GX, 612);
+  ctx.rotate(-8 * Math.PI / 180);
+  ctx.beginPath();
+  ctx.moveTo(-72, 18);
+  ctx.bezierCurveTo(-72, -28, -40, -48, 0, -48);
+  ctx.bezierCurveTo(40, -48, 72, -28, 72, 18);
+  ctx.closePath();
+  ctx.fillStyle = '#e8912d';
+  ctx.fill();
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = '#111111';
+  ctx.stroke();
+  roundRectPath(ctx, -82, 14, 164, 12, 6);
+  ctx.fillStyle = '#e8912d';
+  ctx.fill();
+  ctx.stroke();
+  roundRectPath(ctx, -9, -56, 18, 34, 8);
+  ctx.fillStyle = '#e8912d';
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+
+  // Zzz, floating above the hat.
+  ctx.save();
+  ctx.translate(GX, 545);
+  ctx.rotate(-12 * Math.PI / 180);
+  ctx.font = '700 30px "Liberation Sans", "DejaVu Sans", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(168,200,224,0.9)';
+  ctx.fillText('Zzz', 0, 0);
+  ctx.restore();
+
+  // The paddle: an orange octagon on a short stick, held against the belly.
+  // SLOW on top, and the absurd detail — DAY 4,748 — small underneath.
+  const px = 1085, py = 780, pr = 60;
+  ctx.strokeStyle = '#5a4a3a';
+  ctx.lineWidth = 7;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(px, py + 55);
+  ctx.lineTo(px, 878);
+  ctx.stroke();
+  ctx.beginPath();
+  for (let i = 0; i < 8; i++) {
+    const a = (22.5 + i * 45) * Math.PI / 180;
+    const vx = px + pr * Math.cos(a), vy = py + pr * Math.sin(a);
+    if (i === 0) ctx.moveTo(vx, vy); else ctx.lineTo(vx, vy);
+  }
+  ctx.closePath();
+  ctx.fillStyle = '#e8912d';
+  ctx.fill();
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = '#111111';
+  ctx.stroke();
+  ctx.beginPath();
+  for (let i = 0; i < 8; i++) {
+    const a = (22.5 + i * 45) * Math.PI / 180;
+    const vx = px + (pr - 8) * Math.cos(a), vy = py + (pr - 8) * Math.sin(a);
+    if (i === 0) ctx.moveTo(vx, vy); else ctx.lineTo(vx, vy);
+  }
+  ctx.closePath();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = '#f5f5f5';
+  ctx.stroke();
+  ctx.fillStyle = '#111111';
+  ctx.textAlign = 'center';
+  ctx.font = '700 30px "Liberation Sans", "DejaVu Sans", sans-serif';
+  ctx.fillText('SLOW', px, py - 2);
+  ctx.font = '700 15px "Liberation Sans", "DejaVu Sans", sans-serif';
+  ctx.fillText('DAY 4,748', px, py + 24);
+  // hand gripping the stick
+  ctx.beginPath();
+  ctx.arc(px, 878, 14, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = '#111111';
+  ctx.stroke();
+
+  // The magenta star coin in the other hand.
+  ctx.beginPath();
+  ctx.arc(1160, 860, 15, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = '#111111';
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(1168, 852, 22, 0, Math.PI * 2);
+  ctx.fillStyle = '#c41c83';
+  ctx.fill();
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = '#111111';
+  ctx.stroke();
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const r = i % 2 === 0 ? 13 : 5.5;
+    const a = (i * Math.PI) / 5 - Math.PI / 2;
+    const vx = 1168 + r * Math.cos(a), vy = 852 + r * Math.sin(a);
+    if (i === 0) ctx.moveTo(vx, vy); else ctx.lineTo(vx, vy);
+  }
+  ctx.closePath();
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.restore(); // end the ghost's scale transform
 
   // --- outputs ---
   fs.writeFileSync(OUT, cv.toBuffer('image/png'));

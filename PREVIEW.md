@@ -1,86 +1,73 @@
-# PREVIEW.md — GTA 6 meme, DETOUR rebuilt #2 from a real photo (Kimchi, direct)
+# PREVIEW.md — GTA 6 meme, flagger ghost (Kimchi, direct)
 
-## Why a second rebuild
+## Why a third version
 
-Max rejected the first photorealistic version (commit 3ca322a): "Masih jelek,
-cari referensi di google dulu untuk plank realistisnya." The leader searched
-Google image results and summarised 7 real photos into REALISM-SPEC.md
-(`~/workspace/makefun/refs/`). The diagnosis: v1 painted a flat green box
-over a photo — no white border, no bolts, no light falloff, no texture, and
-the DETOUR band was a full-width flat strip no real sign has. This rebuild
-follows that spec.
+Max rejected the real-photo sign (commit f093e55): "katrok, gak ada meme
+memenya sama sekali." The sign was a real photo, but it had no character, no
+emotion, no absurdity — the joke lived only in the text. A Google image
+search for funny GTA 6 memes showed the same pattern in every one of them:
+there is always a character or a scene with an emotion or an absurd twist —
+a Pepe coping at a messy desk, a skeleton waiting a thousand years, a bored
+stick figure at a computer, a mugshot alligator. Not one funny meme was just
+an empty sign or document. So the joke is now a character.
 
-## How it is built
+## What changed
 
-- Base photo: `photo-base2.jpg` — a REAL photo of a blank green highway sign
-  on a gantry at night (ref-blank-gantry-light, 1920x1080, downscaled to
-  1600x900 for the repo). White border, rounded corners, rows of reflective
-  button dots, a spotlight glowing under the panel, truss gantry, dark
-  cloudy sky. The photo's own panel IS the canvas: the sign copy is drawn
-  INSIDE the existing white border and the panel's falloff is left alone —
-  no green paint anywhere.
-- Composition (fixed): the photo now fills the whole 1200x1200 frame by
-  scale + centre-crop — no flat sky extension, no seam. The crop window is
-  the panel's own width plus a 10px margin each side (1036px), so the scale
-  is 1.1583, the largest one that keeps the whole sign in frame. The photo
-  sits 40px below centre, which puts the panel nearer the frame centre and
-  shrinks the bottom mirror strip to ~39px. The sky strips above and below
-  the photo are a vertical mirror of the photo's own edge rows, so the frame
-  is photo content edge to edge and the boundary is value-continuous. The
-  top mirror is capped at base row 95 so the two small mounts on the panel
-  top are not mirrored into the sky. Text, placard and ghost were re-mapped
-  to the new panel bounds (measured again from pixel scans of the cropped
-  image) and scaled ~1.32x so their proportions to the panel stay the same.
-- DETOUR: a SMALL orange placard pinned near the top of the panel, with its
-  own white border and a soft drop shadow — like a real EXIT tab, not a
-  full-width strip.
-- Sign copy: drawn in code (Liberation Sans Bold, never by an image model),
-  so every letter is sharp and spelled right — GTA VI, 13 YEARS AHEAD with
-  a drawn arrow, TOLL PAID BY make.fun.
-- Ghost: the make.fun mark as a small sticker on the panel's bottom-right
-  corner — tilted -6 degrees, soft shadow, a few chipped notches on the disc
-  rim and two faint scratches, so it reads as a sticker that has been there
-  a while, not a fresh badge.
-- Renderer: `create-photo2.js`, written from scratch this session.
-  `create-photo.js` (v1 renderer) and `photo-base.jpg` (v1 AI base) are
-  removed; they no longer produce the meme.
+- The small sticker in the panel's bottom-right corner is gone.
+- The ghost is now a big tired road worker, about 280px tall, standing on
+  the support beam at the panel's bottom-right. It is the second thing the
+  eye lands on after GTA VI.
+- It wears a small orange hard hat that is slipping sideways, its eyes are
+  shut in sleepy U curves, a "Zzz" floats above the hat, it holds an orange
+  SLOW paddle in one hand and the magenta star coin in the other. The paddle
+  carries one small absurd detail: "DAY 4,748" — how long it has been
+  holding this detour.
+- The ghost is drawn by hand in code (bezier body, no sticker disc), so it
+  is a character standing in the scene rather than a badge pasted on it.
+- The photo and the sign copy are untouched: same real-photo base, same
+  DETOUR placard, GTA VI, 13 YEARS AHEAD with its drawn arrow, and TOLL
+  PAID BY make.fun, in the same places.
+- The renderer is still `create-photo2.js`, edited in place (the sticker
+  block replaced by the flagger block). `mark-1024.png` is no longer loaded.
 
-## Verification — I looked at it myself (fix pass)
+## Grounding
 
-- Full 1200x1200: the sign fills the frame and reads as a real night photo
-  — border, rounded corners, button dots, falloff, spotlight glow, support
-  beam, clouds to the bottom edge.
+The beam is near-black out at the right end, away from the lamp, so a
+shadow alone would vanish against it. The feet stand on a soft pool of warm
+spill from the lamp (very low opacity) with a contact shadow on top of it,
+so the ghost has a surface to stand on and does not float.
+
+## Verification — I looked at it myself
+
+- Full 1200x1200: the sign is still the real photo (border, button dots,
+  falloff, spotlight, beam, clouds); the ghost is a big readable character
+  at the bottom-right, hard hat and paddle clear.
 - 480x480 (judge size): DETOUR, GTA VI, 13 YEARS AHEAD arrow, TOLL PAID BY
-  make.fun all readable; ghost recognisable.
+  make.fun all readable; the ghost is recognisable with its hat and paddle.
+- Zoom ghost zone: sleepy eyes, tilted hat, Zzz, SLOW + DAY 4,748 on the
+  paddle, magenta star coin — all sharp, no overlap with the arrow, divider
+  or bottom line (nearest text ends at x 984; the ghost starts at x 1000).
 - Zoom text zone: zero garbled text, zero overlap, all letters sharp.
-- Zoom ghost zone: ghost sharp (sparkle eyes, star coin), sticker tilted on
-  the panel corner, arrow and divider stop clear of it; the disc is fully
-  inside the frame (magenta bbox x 1029..1180).
-- Zoom panel corners: white border + rounded corners + button-dot rows all
-  visible on both corners — the strongest "real sign" signals.
-- Zoom bottom zone: clouds run to the bottom edge — no seam line, no flat
-  band. Pixel scan: the row-brightness jump at the mirror boundary (0.62)
-  equals natural cloud variation elsewhere (0.57), so there is no seam to
-  find. Top rows are pure black (0 non-black pixels).
+- Zoom feet zone: the feet sit on the beam's top edge, warm pool and shadow
+  visible under them.
 - Zero watermark, zero AI-garbled text, zero overlap.
+- One fix during verification: the first render had the coin 8px from the
+  frame's right edge, so the whole ghost was scaled 0.93 around the feet for
+  breathing room. Re-rendered and re-checked at full size, 480 and zooms.
 
-## Honest notes (fix pass)
+## Honest notes
 
-- The seam and the flat bottom band are gone: the whole frame is photo
-  content and the row-brightness scan finds no seam.
-- The bottom ~39px is a vertical mirror of the photo's own bottom clouds,
-  not a flat band — no hard edge, and its brightness jump matches natural
-  cloud variation. A viewer hunting for symmetry in a zoomed bottom crop
-  could notice the clouds repeat, but at display size it reads as clouds.
-- The side truss is essentially cropped out (only a ~12px sliver remains on
-  each side): the panel is 1016px wide in the base, and at the height-filling
-  scale the visible window is only 900px wide, so no uniform scale + crop
-  can keep both the whole panel and the truss in a square frame. The sign
-  keeps its support beam and spotlight, so it does not float — but the
-  gantry truss is not fully visible.
-- The sticker's chipped-edge wear is subtle — at display size the tilt,
-  shadow and corner placement do most of the "old sticker" work, not the
-  notches.
+- The ghost is slimmer than the mascot (about 0.62 wide-to-tall): the free
+  strip between the text and the frame edge is only ~210px wide, and the
+  mascot's own proportions would not fit it without touching the arrow or
+  the frame. It still reads as the same character — same face shape, same
+  outline, same coin.
+- The hand gripping the paddle stick is a white circle sitting in the notch
+  between the feet; at high zoom it reads a little like a ball, though the
+  stick connects it to the paddle and at display size it reads as a hand.
+- The beam is near-black at the right end, so the grounding leans on the
+  warm light pool; it is deliberately subtle so it does not look like a
+  stage light.
 
 ## Post text (unchanged)
 
