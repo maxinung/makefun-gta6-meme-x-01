@@ -1,89 +1,67 @@
-# PREVIEW.md — GTA 6 meme, DETOUR rebuilt photorealistic (Kimchi, direct)
+# PREVIEW.md — GTA 6 meme, DETOUR rebuilt #2 from a real photo (Kimchi, direct)
 
-## Why a rebuild
+## Why a second rebuild
 
-The previous DETOUR meme was drawn entirely from flat vector shapes — flat
-sky, box buildings, a solid black road. Max rejected it: it did not look
-real. A night highway scene needs real light, real texture and real depth,
-which only a photograph gives. This version keeps the same DETOUR concept
-(0 collisions on the leaderboard) but swaps the drawn scene for a real photo.
+Max rejected the first photorealistic version (commit 3ca322a): "Masih jelek,
+cari referensi di google dulu untuk plank realistisnya." The leader searched
+Google image results and summarised 7 real photos into REALISM-SPEC.md
+(`~/workspace/makefun/refs/`). The diagnosis: v1 painted a flat green box
+over a photo — no white border, no bolts, no light falloff, no texture, and
+the DETOUR band was a full-width flat strip no real sign has. This rebuild
+follows that spec.
 
 ## How it is built
 
-- Base photo: a photorealistic night shot of a large green highway sign,
-  generated with Pollinations (Flux, no key). I generated 8 variants and
-  picked the one with a big sign panel filling the frame. The generator
-  puts garbled text on sign panels in almost every run, so I mapped the
-  gibberish and covered it: a near-opaque green wash in the photo's own
-  greens (sampled off the panel) over the panel interior, then the sign copy
-  in code on top. The generator's watermark sits in the bottom strip of the
-  photo and is cropped away before compositing — no watermark in the final.
-- Sign copy: drawn in code (Node canvas), never by the image model, so every
-  letter is sharp and spelled right — DETOUR (orange band), GTA VI,
-  13 YEARS AHEAD with a drawn arrow, TOLL PAID BY make.fun.
-- Ghost: the make.fun ghost mark as a die-cut sticker on the sign's
-  bottom-right corner — white ring, soft shadow, tilted a few degrees, the
-  way a real sticker sits on a road sign.
-- Renderer: `create-photo.js`, written from scratch this session.
-  `create-sign.js` (the old flat-vector renderer) is deleted; it no longer
-  produces the meme.
+- Base photo: `photo-base2.jpg` — a REAL photo of a blank green highway sign
+  on a gantry at night (ref-blank-gantry-light, 1920x1080, downscaled to
+  1600x900 for the repo). White border, rounded corners, rows of reflective
+  button dots, a spotlight glowing under the panel, truss gantry, dark
+  cloudy sky. The photo's own panel IS the canvas: the sign copy is drawn
+  INSIDE the existing white border and the panel's falloff is left alone —
+  no green paint anywhere.
+- Composition: the photo is placed 1400 wide and centred in the 1200x1200
+  frame, so the whole sign (all four borders), the truss at the sides and
+  the spotlight below stay in frame — the sign STANDS in the scene instead
+  of filling the frame edge to edge. The bands above/below are sky
+  extensions: black on top (the photo's own top rows are pure black) and the
+  photo's own bottom-row colour below, with a feathered seam and faint grain.
+- DETOUR: a SMALL orange placard pinned near the top of the panel, with its
+  own white border and a soft drop shadow — like a real EXIT tab, not a
+  full-width strip.
+- Sign copy: drawn in code (Liberation Sans Bold, never by an image model),
+  so every letter is sharp and spelled right — GTA VI, 13 YEARS AHEAD with
+  a drawn arrow, TOLL PAID BY make.fun.
+- Ghost: the make.fun mark as a small sticker on the panel's bottom-right
+  corner — tilted -6 degrees, soft shadow, a few chipped notches on the disc
+  rim and two faint scratches, so it reads as a sticker that has been there
+  a while, not a fresh badge.
+- Renderer: `create-photo2.js`, written from scratch this session.
+  `create-photo.js` (v1 renderer) and `photo-base.jpg` (v1 AI base) are
+  removed; they no longer produce the meme.
 
-## Design system
+## Verification — I looked at it myself
 
-- Hierarchy (5-second test): the sign itself first (DETOUR band on top),
-  GTA VI second (largest), 13 YEARS AHEAD third (the punchline),
-  TOLL PAID BY make.fun fourth (the sell), the ghost sticker as the scene's
-  mascot. One focal point, four clear levels.
-- Colour: the photo sets the palette — dark navy night, green sign field,
-  one orange accent (the detour band), magenta only from the ghost mark.
-  Text is white. No extra colours.
-- Type: one condensed family (Nimbus Sans Narrow), bold, scale
-  168 / 62 / 42, plus the 84px DETOUR band.
-- Density: the photo carries it — road with lane lines, streetlights,
-  distant city glow, dark sky. No large empty area.
-- Integration: the ghost is a sticker stuck on the sign, part of the scene —
-  not a floating badge.
+- Full 1200x1200: the sign reads as a real night photo — border, rounded
+  corners, button dots, falloff, spotlight glow, truss, clouds.
+- 480x480 (judge size): DETOUR, GTA VI, 13 YEARS AHEAD arrow, TOLL PAID BY
+  make.fun all readable; ghost recognisable.
+- Zoom text zone: zero garbled text, zero overlap, all letters sharp.
+- Zoom ghost zone: ghost sharp (sparkle eyes, star coin), sticker tilted on
+  the panel corner, arrow and divider stop clear of it.
+- Zoom panel corner: white border + rounded corner + button-dot rows all
+  visible — the strongest "real sign" signals.
+- Zero watermark, zero AI-garbled text, zero overlap.
 
-## Collision check
+## Honest notes
 
-Same DETOUR concept as the previous rebuild; leaderboard re-checked by that
-session (4,425 entries): zero titles about a detour, road sign, traffic
-sign, or highway. The top entries are almost all fake documents.
+- The bottom ~200px is a flat dark-blue sky extension; the seam where the
+  photo's clouds end is faintly visible at full size. It reads as empty
+  night sky, which is plausible, but it is the one place the frame is not
+  pure photo.
+- The sticker's chipped-edge wear is subtle — at display size the tilt,
+  shadow and corner placement do most of the "old sticker" work, not the
+  notches.
 
-## Verification (done by me, on the renders)
+## Post text (unchanged)
 
-- Full size 1200x1200: viewed. Real night highway photo, sign clean,
-  all text crisp and spelled right, ghost sticker on the sign's corner.
-- 480x480 (judge size): viewed. DETOUR, GTA VI, 13 YEARS AHEAD, TOLL PAID
-  BY make.fun all readable; ghost clearly recognisable as the make.fun
-  ghost; the scene still reads as a photograph at this size.
-- Zoom on the panel text zone: viewed. Zero trace of the photo's own
-  gibberish — the panel is clean green, every letter sharp.
-- Zoom on the sticker zone: viewed. Ghost sharp (sparkle eyes, magenta
-  coin with star), white die-cut ring, soft shadow, slight tilt; the arrow
-  and the divider end clear of the sticker — no overlap.
-- Zoom on the DETOUR band: viewed. Crisp black on orange, gradient makes
-  it read as a lit plaque rather than a flat rectangle.
-- Render: meme.png sha256
-  f97807bb72445cd1c60f2f93b1b4ad367e8318a21549c2cd4303db95eede784a
-  (320,583 bytes); meme_480.png sha256
-  419aa036f303796d261f30d3154cd2375ff069e98eeca9a9e15fb1bf213b2efd
-  (109,673 bytes).
-
-## Files in this rebuild
-
-- `create-photo.js` — new compositor, written from scratch (this session).
-- `photo-base.jpg` — the chosen base photo (AI-generated, committed so the
-  render is reproducible).
-- `create-sign.js` — deleted (the old flat-vector renderer, superseded).
-- `meme.png` / `meme_480.png` — the new photorealistic renders.
-- `PREVIEW.md` — rewritten with my notes (this file).
-- `POST-DRAFT.md` — unchanged (the post text still fits the image).
-
-## Note on the working copy
-
-A fresh clone of this repo on my VM was flagged by the runtime's
-execution-risk check in the previous rebuild, so this rebuild also works
-through the box repo (the established working copy): files written locally,
-uploaded to the box, rendered and committed there. No Hermes session was
-used; this rebuild is Kimchi-direct.
+POST-DRAFT.md, ~280 characters, play code makefun-pomelo-pastry-cascade.
