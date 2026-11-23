@@ -1,14 +1,21 @@
 // create-photo2.js — GTA 6 meme-x-01, rebuild #2 (photorealistic, real-photo base)
 //
-// Base: ref-blank-gantry-light.jpg — a REAL photo of a blank green highway
-// sign on a gantry at night (white border, rounded corners, button dots,
-// spotlight under the panel, dark cloudy sky, truss). The photo's own panel
-// IS the canvas: the sign copy is drawn INSIDE the existing white border and
-// the panel's light falloff is left alone — no green paint anywhere.
+// Base: photo-base2.jpg — a REAL photo of a blank green highway sign on a
+// gantry at night (white border, rounded corners, button dots, spotlight
+// under the panel, dark cloudy sky, truss). The photo's own panel IS the
+// canvas: the sign copy is drawn INSIDE the existing white border and the
+// panel's light falloff is left alone — no green paint anywhere.
 // DETOUR is a small orange placard pinned near the top of the panel (its own
 // border + shadow, like a real EXIT tab), not a full-width strip. The ghost
 // is a small worn sticker on the panel's bottom-right corner, tilted, with a
 // soft shadow and a few chipped edge notches. Rendered with node-canvas.
+//
+// Composition fix: the photo fills the whole frame by scale + centre-crop,
+// with no flat sky extension and no seam. The crop window is the panel's
+// own width plus a 10px margin each side, so the scale is the largest one
+// that keeps the whole sign in frame; the small sky strips above and below
+// the photo mirror the photo's own edge rows, so the frame is photo content
+// edge to edge.
 const fs = require('fs');
 const path = require('path');
 const { createCanvas, loadImage } = require('canvas');
@@ -21,27 +28,39 @@ const OUT480 = path.join(REPO, 'meme_480.png');
 
 const W = 1200, H = 1200;
 
-// Panel geometry measured from the base photo by pixel scans (1600x900 base).
-// Outer panel: x 229..1245, y 117..657. Inside the white border:
+// Panel geometry, re-measured from the base photo by pixel scans (1600x900
+// base). Outer panel: x 229..1245, y 117..657. Inside the white border:
 // x 244..1230, y 132..642. Panel centre (737, 387). A spotlight fixture sits
-// just under the panel, centre-bottom.
+// just under the panel, centre-bottom, on a support beam.
 const PANEL = { x0: 229, y0: 117, x1: 1245, y1: 657 };
 const INNER = { x0: 244, y0: 132, x1: 1230, y1: 642 };
 const CENTRE = { x: 737, y: 387 };
 
-// The photo is placed 1400 wide (scale 0.875 of the 1600 base) and centred,
-// so the whole sign — all four borders, the truss at the sides, the
-// spotlight below — stays in frame and the sign STANDS in the scene instead
-// of filling the frame edge to edge. The 206px bands above/below are sky
-// extensions: black on top (the photo's own top rows are pure black) and the
-// photo's own bottom-row colour below, with a feathered seam.
-const SCALE = 1400 / 1600;
-const OX = (W - 1600 * SCALE) / 2;
-const OY = (H - 900 * SCALE) / 2;
-const PW = 1600 * SCALE, PH = 900 * SCALE;
+// The photo fills the whole frame by scale + centre-crop, with no flat sky
+// extension anywhere. The panel is 1016px wide in the base, and at the
+// height-filling scale (4/3) the visible window is only 900px wide, so that
+// scale would slice 161px off the sign's left border and corner. The scale
+// used here is the largest one that keeps the whole sign in frame: the crop
+// window is the panel's own width plus a 10px margin each side (1036px), so
+// the white border, both rounded corners, the button dots, the spotlight and
+// the support beam all stay fully visible. The crop window is centred on
+// the sign; the small sky strips above and below the photo are a vertical
+// mirror of the photo's own edge rows, so the frame is photo content edge
+// to edge and the boundary is value-continuous (no seam, no flat band).
+const CROP = { x0: 219, y0: 0, x1: 1255, y1: 900 };
+const S = W / (CROP.x1 - CROP.x0);
+const PHOTO_H = (CROP.y1 - CROP.y0) * S;
+// The photo sits 40px below centre: the panel lands nearer the frame centre
+// and the bottom mirror band shrinks to ~39px, so the mirrored clouds are a
+// thin strip instead of a wide reflected band. The top strip is pure black
+// night sky, so the taller top mirror is invisible.
+const PHOTO_Y = (H - PHOTO_H) / 2 + 40;
+const MIRROR_TOP = PHOTO_Y;
+const MIRROR_BOT = H - (PHOTO_Y + PHOTO_H);
+const MIRROR_BOT_BASE = MIRROR_BOT / S;
 
-function sx(x) { return OX + x * SCALE; }
-function sy(y) { return OY + y * SCALE; }
+function fx(x) { return (x - CROP.x0) * S; }
+function fy(y) { return PHOTO_Y + y * S; }
 
 function roundRectPath(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -59,72 +78,55 @@ async function main() {
   const cv = createCanvas(W, H);
   const ctx = cv.getContext('2d');
 
-  // Bottom-band colour: average of the photo's own bottom rows, so the sky
-  // extension below the photo matches the real sky in the shot.
-  const tmp = createCanvas(base.width, base.height);
-  const tctx = tmp.getContext('2d');
-  tctx.drawImage(base, 0, 0);
-  const strip = tctx.getImageData(0, base.height - 24, base.width, 24).data;
-  let r = 0, g = 0, b = 0, n = 0;
-  for (let i = 0; i < strip.length; i += 4) { r += strip[i]; g += strip[i + 1]; b += strip[i + 2]; n++; }
-  const fr = Math.round(r / n), fg = Math.round(g / n), fb = Math.round(b / n);
-  const fill = 'rgb(' + fr + ',' + fg + ',' + fb + ')';
-
-  // --- sky extensions ---
-  ctx.fillStyle = '#000000';
-  ctx.fillRect(0, 0, W, OY + 2);
-  ctx.fillStyle = fill;
-  ctx.fillRect(0, OY + PH - 2, W, H - (OY + PH) + 2);
-  // faint grain over the bottom band so it carries the photo's texture
-  const grain = createCanvas(160, 160);
-  const gctx = grain.getContext('2d');
-  const gd = gctx.createImageData(160, 160);
-  for (let i = 0; i < gd.data.length; i += 4) {
-    const v = 118 + Math.floor(Math.random() * 20);
-    gd.data[i] = v; gd.data[i + 1] = v; gd.data[i + 2] = v; gd.data[i + 3] = 255;
-  }
-  gctx.putImageData(gd, 0, 0);
+  // --- the photo, filling the frame ---
+  // Drawn scaled + centre-cropped. The sky strips above and below it are a
+  // vertical mirror of the photo's own edge rows, so the whole frame is
+  // photo content and the boundary is value-continuous: no hard seam, no
+  // flat band. The top strip mirrors pure black night sky; the bottom strip
+  // mirrors the photo's own clouds.
+  ctx.drawImage(base, CROP.x0, CROP.y0, CROP.x1 - CROP.x0, CROP.y1 - CROP.y0,
+    0, PHOTO_Y, W, PHOTO_H);
+  // top mirror: base rows 0..95 flipped, base y=0 against the photo top.
+  // Capped at 95 so the two small mounts on the panel top (base y 100+) are
+  // not mirrored into the sky; rows 0..95 are pure black night sky.
   ctx.save();
-  ctx.globalAlpha = 0.05;
-  ctx.fillStyle = ctx.createPattern(grain, 'repeat');
-  ctx.fillRect(0, OY + PH - 2, W, H - (OY + PH) + 2);
+  ctx.translate(0, PHOTO_Y);
+  ctx.scale(1, -1);
+  ctx.drawImage(base, CROP.x0, 0, CROP.x1 - CROP.x0, 95, 0, 0, W, MIRROR_TOP);
+  ctx.restore();
+  // bottom mirror: base rows (900-MIRROR_BOT_BASE)..900 flipped, base y=900 against the photo bottom
+  ctx.save();
+  ctx.translate(0, H);
+  ctx.scale(1, -1);
+  ctx.drawImage(base, CROP.x0, base.height - MIRROR_BOT_BASE, CROP.x1 - CROP.x0, MIRROR_BOT_BASE, 0, 0, W, MIRROR_BOT);
   ctx.restore();
 
-  // --- the photo itself ---
-  ctx.drawImage(base, OX, OY, PW, PH);
-  // feather the bottom seam so the extension melts into the real sky
-  const seam = ctx.createLinearGradient(0, OY + PH - 36, 0, OY + PH);
-  seam.addColorStop(0, 'rgba(' + fr + ',' + fg + ',' + fb + ',0)');
-  seam.addColorStop(1, 'rgba(' + fr + ',' + fg + ',' + fb + ',1)');
-  ctx.fillStyle = seam;
-  ctx.fillRect(0, OY + PH - 36, W, 36);
-
   // --- sign copy, inside the photo's own white border ---
-  const cx = sx(CENTRE.x);
-  const ix0 = sx(INNER.x0), ix1 = sx(INNER.x1);
-  const iy0 = sy(INNER.y0), iy1 = sy(INNER.y1);
+  const cx = fx(CENTRE.x);
+  const ix0 = fx(INNER.x0), ix1 = fx(INNER.x1);
+  const iy0 = fy(INNER.y0), iy1 = fy(INNER.y1);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
 
   // DETOUR placard: a small orange board pinned near the top of the panel,
   // white border of its own, soft drop shadow — like a real EXIT tab.
-  const plW = 300, plH = 66;
-  const plX = cx - plW / 2, plY = iy0 + 16;
+  const plW = 397, plH = 87;
+  const plX = cx - plW / 2, plY = iy0 + 21;
   ctx.save();
   ctx.shadowColor = 'rgba(0,0,0,0.45)';
-  ctx.shadowBlur = 6;
-  ctx.shadowOffsetY = 4;
-  roundRectPath(ctx, plX, plY, plW, plH, 8);
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetY = 5;
+  roundRectPath(ctx, plX, plY, plW, plH, 11);
   ctx.fillStyle = '#e8912d';
   ctx.fill();
   ctx.restore();
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 4;
   ctx.strokeStyle = '#f5f5f5';
-  roundRectPath(ctx, plX + 2, plY + 2, plW - 4, plH - 4, 6);
+  roundRectPath(ctx, plX + 2, plY + 2, plW - 4, plH - 4, 8);
   ctx.stroke();
   ctx.fillStyle = '#111111';
-  ctx.font = '700 44px "Liberation Sans", "DejaVu Sans", sans-serif';
-  ctx.fillText('DETOUR', cx, plY + 47);
+  ctx.font = '700 58px "Liberation Sans", "DejaVu Sans", sans-serif';
+  ctx.fillText('DETOUR', cx, plY + 62);
 
   // Main legend. White, like a real sign's retroreflective legend, with a
   // hairline shadow so it holds against the bright lamp glow low on the panel.
@@ -132,27 +134,27 @@ async function main() {
   ctx.shadowColor = 'rgba(0,0,0,0.28)';
   ctx.shadowBlur = 2;
   ctx.shadowOffsetY = 2;
-  ctx.font = '700 148px "Liberation Sans", "DejaVu Sans", sans-serif';
-  try { ctx.letterSpacing = '10px'; } catch (e) { /* older canvas: ignore */ }
-  ctx.fillText('GTA VI', cx, 560);
+  ctx.font = '700 196px "Liberation Sans", "DejaVu Sans", sans-serif';
+  try { ctx.letterSpacing = '13px'; } catch (e) { /* older canvas: ignore */ }
+  ctx.fillText('GTA VI', cx, 587);
   try { ctx.letterSpacing = '0px'; } catch (e) { /* older canvas: ignore */ }
 
   // Second line + a drawn arrow (a shape, never a font glyph).
-  ctx.font = '700 62px "Liberation Sans", "DejaVu Sans", sans-serif';
+  ctx.font = '700 82px "Liberation Sans", "DejaVu Sans", sans-serif';
   const line2 = '13 YEARS AHEAD';
   const tw = ctx.measureText(line2).width;
-  const tx = cx - 40; // shifted left so the arrow fits on the right
-  ctx.fillText(line2, tx, 650);
-  const ax0 = tx + tw / 2 + 18, ax1 = ax0 + 68, ay = 632;
+  const tx = cx - 53; // shifted left so the arrow fits on the right
+  ctx.fillText(line2, tx, 706);
+  const ax0 = tx + tw / 2 + 24, ax1 = ax0 + 90, ay = 682;
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
-  ctx.moveTo(ax0, ay - 9);
-  ctx.lineTo(ax1 - 26, ay - 9);
-  ctx.lineTo(ax1 - 26, ay - 22);
+  ctx.moveTo(ax0, ay - 12);
+  ctx.lineTo(ax1 - 34, ay - 12);
+  ctx.lineTo(ax1 - 34, ay - 29);
   ctx.lineTo(ax1, ay);
-  ctx.lineTo(ax1 - 26, ay + 22);
-  ctx.lineTo(ax1 - 26, ay + 9);
-  ctx.lineTo(ax0, ay + 9);
+  ctx.lineTo(ax1 - 34, ay + 29);
+  ctx.lineTo(ax1 - 34, ay + 12);
+  ctx.lineTo(ax0, ay + 12);
   ctx.closePath();
   ctx.fill();
   ctx.shadowColor = 'rgba(0,0,0,0)';
@@ -161,21 +163,21 @@ async function main() {
 
   // Thin divider, stopping well short of the sticker.
   ctx.strokeStyle = 'rgba(255,255,255,0.55)';
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(205, 674);
-  ctx.lineTo(835, 674);
+  ctx.moveTo(150, 738);
+  ctx.lineTo(984, 738);
   ctx.stroke();
 
   // Bottom line.
   ctx.fillStyle = '#ffffff';
-  ctx.font = '700 50px "Liberation Sans", "DejaVu Sans", sans-serif';
-  ctx.fillText('TOLL PAID BY make.fun', cx, 732);
+  ctx.font = '700 66px "Liberation Sans", "DejaVu Sans", sans-serif';
+  ctx.fillText('TOLL PAID BY make.fun', cx, 815);
 
   // --- ghost sticker: small, on the panel's bottom-right corner, tilted,
   // soft shadow, edges chipped so it reads as a sticker that has been there
   // a while — not a fresh badge. ---
-  const gs = 140, gx = 935, gy = 715, pad = 24;
+  const gs = 185, gx = 1105, gy = 792, pad = 32;
   const st = createCanvas(gs + pad * 2, gs + pad * 2);
   const sctx = st.getContext('2d');
   sctx.save();
@@ -216,11 +218,12 @@ async function main() {
   fs.writeFileSync(OUT480, small.toBuffer('image/png'));
   console.log('WROTE', OUT, fs.statSync(OUT).size, 'bytes');
   console.log('WROTE', OUT480, fs.statSync(OUT480).size, 'bytes');
-  console.log('panel final x', sx(PANEL.x0).toFixed(0), '..', sx(PANEL.x1).toFixed(0),
-    'y', sy(PANEL.y0).toFixed(0), '..', sy(PANEL.y1).toFixed(0));
+  console.log('crop base x', CROP.x0, '..', CROP.x1, 'scale', S.toFixed(4),
+    'photo y', PHOTO_Y.toFixed(1), '..', (PHOTO_Y + PHOTO_H).toFixed(1));
+  console.log('panel final x', fx(PANEL.x0).toFixed(0), '..', fx(PANEL.x1).toFixed(0),
+    'y', fy(PANEL.y0).toFixed(0), '..', fy(PANEL.y1).toFixed(0));
   console.log('interior final x', ix0.toFixed(0), '..', ix1.toFixed(0),
     'y', iy0.toFixed(0), '..', iy1.toFixed(0));
-  console.log('bottom fill', fill);
 }
 
 main().catch((e) => { console.error('RENDER FAILED', e); process.exit(1); });

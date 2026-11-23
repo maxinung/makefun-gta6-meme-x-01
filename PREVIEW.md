@@ -19,12 +19,18 @@ follows that spec.
   cloudy sky. The photo's own panel IS the canvas: the sign copy is drawn
   INSIDE the existing white border and the panel's falloff is left alone —
   no green paint anywhere.
-- Composition: the photo is placed 1400 wide and centred in the 1200x1200
-  frame, so the whole sign (all four borders), the truss at the sides and
-  the spotlight below stay in frame — the sign STANDS in the scene instead
-  of filling the frame edge to edge. The bands above/below are sky
-  extensions: black on top (the photo's own top rows are pure black) and the
-  photo's own bottom-row colour below, with a feathered seam and faint grain.
+- Composition (fixed): the photo now fills the whole 1200x1200 frame by
+  scale + centre-crop — no flat sky extension, no seam. The crop window is
+  the panel's own width plus a 10px margin each side (1036px), so the scale
+  is 1.1583, the largest one that keeps the whole sign in frame. The photo
+  sits 40px below centre, which puts the panel nearer the frame centre and
+  shrinks the bottom mirror strip to ~39px. The sky strips above and below
+  the photo are a vertical mirror of the photo's own edge rows, so the frame
+  is photo content edge to edge and the boundary is value-continuous. The
+  top mirror is capped at base row 95 so the two small mounts on the panel
+  top are not mirrored into the sky. Text, placard and ghost were re-mapped
+  to the new panel bounds (measured again from pixel scans of the cropped
+  image) and scaled ~1.32x so their proportions to the panel stay the same.
 - DETOUR: a SMALL orange placard pinned near the top of the panel, with its
   own white border and a soft drop shadow — like a real EXIT tab, not a
   full-width strip.
@@ -39,25 +45,39 @@ follows that spec.
   `create-photo.js` (v1 renderer) and `photo-base.jpg` (v1 AI base) are
   removed; they no longer produce the meme.
 
-## Verification — I looked at it myself
+## Verification — I looked at it myself (fix pass)
 
-- Full 1200x1200: the sign reads as a real night photo — border, rounded
-  corners, button dots, falloff, spotlight glow, truss, clouds.
+- Full 1200x1200: the sign fills the frame and reads as a real night photo
+  — border, rounded corners, button dots, falloff, spotlight glow, support
+  beam, clouds to the bottom edge.
 - 480x480 (judge size): DETOUR, GTA VI, 13 YEARS AHEAD arrow, TOLL PAID BY
   make.fun all readable; ghost recognisable.
 - Zoom text zone: zero garbled text, zero overlap, all letters sharp.
 - Zoom ghost zone: ghost sharp (sparkle eyes, star coin), sticker tilted on
-  the panel corner, arrow and divider stop clear of it.
-- Zoom panel corner: white border + rounded corner + button-dot rows all
-  visible — the strongest "real sign" signals.
+  the panel corner, arrow and divider stop clear of it; the disc is fully
+  inside the frame (magenta bbox x 1029..1180).
+- Zoom panel corners: white border + rounded corners + button-dot rows all
+  visible on both corners — the strongest "real sign" signals.
+- Zoom bottom zone: clouds run to the bottom edge — no seam line, no flat
+  band. Pixel scan: the row-brightness jump at the mirror boundary (0.62)
+  equals natural cloud variation elsewhere (0.57), so there is no seam to
+  find. Top rows are pure black (0 non-black pixels).
 - Zero watermark, zero AI-garbled text, zero overlap.
 
-## Honest notes
+## Honest notes (fix pass)
 
-- The bottom ~200px is a flat dark-blue sky extension; the seam where the
-  photo's clouds end is faintly visible at full size. It reads as empty
-  night sky, which is plausible, but it is the one place the frame is not
-  pure photo.
+- The seam and the flat bottom band are gone: the whole frame is photo
+  content and the row-brightness scan finds no seam.
+- The bottom ~39px is a vertical mirror of the photo's own bottom clouds,
+  not a flat band — no hard edge, and its brightness jump matches natural
+  cloud variation. A viewer hunting for symmetry in a zoomed bottom crop
+  could notice the clouds repeat, but at display size it reads as clouds.
+- The side truss is essentially cropped out (only a ~12px sliver remains on
+  each side): the panel is 1016px wide in the base, and at the height-filling
+  scale the visible window is only 900px wide, so no uniform scale + crop
+  can keep both the whole panel and the truss in a square frame. The sign
+  keeps its support beam and spotlight, so it does not float — but the
+  gantry truss is not fully visible.
 - The sticker's chipped-edge wear is subtle — at display size the tilt,
   shadow and corner placement do most of the "old sticker" work, not the
   notches.
