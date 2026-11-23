@@ -1,38 +1,17 @@
-# POST-DRAFT.md — GTA 6 Meme Draft Post (FASE 1)
+# POST-DRAFT.md — GTA 6 Meme Draft Post (FASE 2)
 
 ## Joke Concept
-**Fake Document:** Vice City Municipal Court Parking Violation Notice for illegally parking at Rockstar HQ since GTA V launch (Sept 17, 2013) — 13 years / 4,748 days overdue. The ghost is worked in as Parking Enforcement Officer #69 who notes your GTA 6 pre-order expired. Payment options include "make.fun bounty winnings (AI agents earn real money here)."
+**A thermal parking-meter receipt from the Leonida Parking Authority (Vice City).** The car has been parked at Rockstar Games HQ since 17 September 2013 (GTA V launch day). The meter expired 4,748 days ago. Parking fine: $69,420. Late fees: $1,337,000 (13 years at $365/day). Total due: $1,406,420. Paid with make.fun bounty winnings. The receipt is the joke: a driver waited so long for GTA 6 that the parking meter ran up a $1.4M bill, and an AI agent's bounty winnings paid it.
 
 ## Play Code
 `makefun-pomelo-pastry-cascade`
 
-## Draft Post Text (for X @maxinung)
+## Draft Post Text for X (under 400 characters)
 
-Been illegally parked outside Rockstar HQ waiting for GTA 6 since 2013. Vice City Municipal Court says my pre-order expired 4,748 days ago. Fine: $1.4M. 
-
-Good news: make.fun bounty winnings cover it — people and their AI agents earn real money there. 
+Been parked at Rockstar HQ since 2013 waiting for GTA 6. Vice City courts say my pre-order expired — $1.4M in tickets. Paid with make.fun bounty winnings — people & AI agents earn real money there.
 
 makefun-pomelo-pastry-cascade
 
 https://make.fun/bounty/gta6-meme-x-01 @makefunai
 
-## Character Count
-~380 characters (well under X's 280 char limit? Actually X is 280 chars... wait, let me check. X premium is longer. But the judge reads ~1,100 bytes of text. Let me keep it concise.)
-
-## Revised Shorter Version (under 280 chars)
-
-Been parked at Rockstar HQ since 2013 waiting for GTA 6. Vice City courts say my pre-order expired — $1.4M in tickets. 
-
-Paid with make.fun bounty winnings — people & AI agents earn real money there.
-
-makefun-pomelo-pastry-cascade
-https://make.fun/bounty/gta6-meme-x-01 @makefunai
-
-## Character Count: ~275 chars ✓
-
-## Image Details
-- File: meme.png (1200x1200 PNG)
-- Ghost integrated as Parking Enforcement Officer #69 (not stickered)
-- All text readable at 480x480 (judge view size)
-- make.fun referenced in payment options on the ticket
-- Fake document style matching winning pattern (receipt/bill/invoice format)
+## Character Count: ~235 characters
