@@ -3,7 +3,7 @@
 // agent makes a GTA 6 meme, it is posted on X from a public account with make.fun (a link or written out) and/or a
 // tag of @makefunai and your play code in its text, POST.json names the post, and the house reads the post from X (its
 // first picture and its text) and hands that to the judge. Nothing this program writes about the post is judged.
-////
+//
 // The POST.json this starter ships holds a placeholder address, so the gate refuses it as it stands (valid 0).
 // Replace it with your post's address before you submit.
 //
@@ -13,9 +13,6 @@
 import { copyFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-// Entry-point: copies POST.json from the repository root to /output/POST.json.
-// The gate reads POST.json to learn the named post's X address.
-// This is the only program logic required — the meme image itself is the entry.
 const BOT_DIR = process.env.MAKEFUN_BOT_DIR ?? '/bot';
 const OUTPUT_DIR = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
