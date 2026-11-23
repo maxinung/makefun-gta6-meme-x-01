@@ -23,9 +23,9 @@ async function createMeme() {
   // ===== PAPER STRIP =====
   // Centered white paper strip, fills frame vertically
   const paperLeft = 150;
-  const paperTop = 60;
+  const paperTop = 380;
   const paperWidth = 900;
-  const paperHeight = 1080; // 60 + 1080 = 1140, leaving 60px bottom dark frame
+  const paperHeight = 460; // 380 + 460 = 840, centered: 380px dark frame top and bottom
   const paperRight = paperLeft + paperWidth; // 1050
   const paperBottom = paperTop + paperHeight; // 1140
 
@@ -54,13 +54,10 @@ async function createMeme() {
   // "Leonida Parking Authority, Vice City"
   // The ghost is the receipt's own logo, postage stamp size, next to the name
   ctx.font = 'bold 32px monospace';
-  ctx.fillText('Leonida Parking Authority', paperLeft + 50, paperTop + 70);
+  ctx.fillText('Leonida Parking Authority', paperLeft + 100, paperTop + 70);
 
   ctx.font = '20px monospace';
-  ctx.fillText('Vice City', paperLeft + 50, paperTop + 95);
-
-  // Re-draw ghost in header (already drawn above, ensuring it's "part of the design")
-  ctx.drawImage(ghost, ghostX, ghostY, ghostSize, ghostSize);
+  ctx.fillText('Vice City', paperLeft + 100, paperTop + 95);
 
   // ===== DATE / "PARKED SINCE 2013" LINE =====
   // This is the secondary focal point after total due
@@ -70,7 +67,7 @@ async function createMeme() {
   // ===== ITEMIZED ROWS =====
   // Each row: label and value, with ruled line below
   let yPos = paperTop + 180; // start below the "parked since" line
-  const rowHeight = 28; // consistent grid height per row
+  const rowHeight = 36; // consistent grid height per row
   const labelX = paperLeft + 50; // left-aligned, inside paper
   const valueX = paperLeft + 700; // value area - shifted right
   const fineValue = '$69,420';
@@ -91,7 +88,7 @@ async function createMeme() {
     ctx.restore();
 
     // Ruled line below the row (grid alignment)
-    const lineY = yPos + fontSize + 4;
+    const lineY = yPos + 7;
     ctx.strokeStyle = INK_BLACK;
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -110,7 +107,7 @@ async function createMeme() {
 
   // ===== TOTAL DUE (LARGEST TYPE - focal point) =====
   // This is the first thing the eye hits per the hierarchy test
-  yPos += 16; // space after last ruled line
+  yPos += 40; // space after last ruled line
   ctx.font = 'bold 48px monospace'; // largest type on the receipt
   ctx.textAlign = 'right';
   ctx.fillText('TOTAL DUE:', paperRight - 50, yPos);
@@ -149,19 +146,6 @@ async function createMeme() {
   ctx.lineTo(paperRight, perforationY);
   ctx.stroke();
   ctx.setLineDash([]); // reset
-
-  // ===== SIGNATURE / OFFICIAL STAMP AREA =====
-  // The ghost IS the mascot integrated into the design (as the receipt's logo)
-  // No separate "sticker" or "badge" - the ghost in the header IS the integration
-  // A small circle/outline near the ghost can serve as a subtle "official" mark
-  ctx.strokeStyle = INK_BLACK;
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  // Small circular mark near the ghost in the header, subtle
-  const stampX = ghostX + ghostSize + 5;
-  const stampY = ghostY + 5;
-  ctx.arc(stampX, stampY, 8, 0, Math.PI * 2);
-  ctx.stroke();
 
   // ===== SAVE =====
   const buffer = canvas.toBuffer('image/png');
